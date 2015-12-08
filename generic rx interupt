@@ -1,0 +1,9 @@
+  .global USART_RX_vect
+USART_RX_vect:
+  in  r2, _SFR_IO_ADDR(SREG)
+  push  r2
+  lds r2, UDR0
+  sts ch, r2
+  pop r2
+  out _SFR_IO_ADDR(SREG), r2
+  reti
