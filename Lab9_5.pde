@@ -76,10 +76,13 @@ void serialEvent(Serial s) {
 void mousePressed(){
   if (mouseInRect() && frame==0){
     frame=1;
+    sensor.write(1);
    } else if (mouseInRect() && frame==1){
      frame=2;
+     sensor.write(2)
    } else if (mouseInRect() && frame==2){
       frame=0; 
+      sensor.write(0)
    }  
 }
 
