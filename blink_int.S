@@ -18,22 +18,22 @@ doit:
 	sei
 forever:
 	cpi		ch, '0'
-	breq	offoff
+	breq	off
 	cpi		ch, '1'
-	breq	offon
+	breq	normalSpeed
 	cpi		ch, '2'
-	breq	onoff
-offoff:
-	cbi _SFR_IO_ADDR(PORTB), PORTB0
-	cbi _SFR_IO_ADDR(PORTD), PORTD6
+	breq	doubleSpeed
+off:
+
+
 	rjmp forever
-offon:
-	cbi _SFR_IO_ADDR(PORTB), PORTB0
-	sbi _SFR_IO_ADDR(PORTD), PORTD6
+normalSpeed:
+	
+	
 	rjmp	forever
-onoff:
-	sbi _SFR_IO_ADDR(PORTB), PORTB0
-	cbi _SFR_IO_ADDR(PORTD), PORTD6
+doubleSpeed:
+	
+	
 	rjmp forever
 	
 	.global TIMER1_OVF_vect
