@@ -17,6 +17,23 @@ doit:
 	sts	TCNT1L, r16
 	sei
 forever:
+	cpi		ch, '0'
+	breq	offoff
+	cpi		ch, '1'
+	breq	offon
+	cpi		ch, '2'
+	breq	onoff
+offoff:
+	cbi _SFR_IO_ADDR(PORTB), PORTB0
+	cbi _SFR_IO_ADDR(PORTD), PORTD6
+	rjmp forever
+offon:
+	cbi _SFR_IO_ADDR(PORTB), PORTB0
+	sbi _SFR_IO_ADDR(PORTD), PORTD6
+	rjmp	forever
+onoff:
+	sbi _SFR_IO_ADDR(PORTB), PORTB0
+	cbi _SFR_IO_ADDR(PORTD), PORTD6
 	rjmp forever
 	
 	.global TIMER1_OVF_vect
@@ -28,7 +45,7 @@ TIMER1_OVF_vect:
 	sbis	_SFR_IO_ADDR(PINB), PINB0
 	ldi	r16, 'A'
 	sbis	_SFR_IO_ADDR(PIND), PIND6
-	ldi	r16, 'A'
+	ldi	r16, 'B'
 	call 	usart_send
 	pop	r2
 	out	_SFR_IO_ADDR(SREG), r2
