@@ -23,19 +23,38 @@ forever:
 	breq	normalSpeed
 	cpi		ch, '2'
 	breq	doubleSpeed
+	rjmp forever
 off:
-
-
-	rjmp forever
+	in    r16, _SFR_IO_ADDR(SREG)
+  	push  r16
+	ldi   r16, 0x00
+	sts   TCNT1H, r16
+  	sts   TCNT1L, r16
+  	pop   r16
+	out   _SFR_IO_ADDR(SREG), r16
+ 	ret
 normalSpeed:
-	
-	
-	rjmp	forever
+	in    r16, _SFR_IO_ADDR(SREG)
+  	push  r16
+  	ldi   r16, 0x00
+  	sts   TCNT1H, r16
+	sts   TCNT1L, r16
+  	sts   ch, 3
+  	pop   r16
+  	out   _SFR_IO_ADDR(SREG), r16
+  	ret
 doubleSpeed:
-	
-	
-	rjmp forever
-	
+	 in    r16, _SFR_IO_ADDR(SREG)
+  	push  r16
+	ldi   r16, 0x80
+  	sts   TCNT1H, r16
+  	ldi   r16, 0x00
+  	sts   TCNT1L, r16
+  	sts   ch, 3
+  	pop   r16
+  	out   _SFR_IO_ADDR(SREG), r16
+  	ret
+
 	.global TIMER1_OVF_vect
 TIMER1_OVF_vect:
 	in	r2, _SFR_IO_ADDR(SREG)
