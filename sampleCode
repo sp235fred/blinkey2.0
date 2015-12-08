@@ -1,0 +1,97 @@
+#include <avr/io.h>
+
+	.section	.bss
+
+ch:	.space	1, 0
+
+	.section	.text
+
+	.global	doit
+doit:
+	cbi		_SFR_IO_ADDR(DDRD), DDD2
+	cbi		_SFR_IO_ADDR(DDRD), DDD4
+	sbi		_SFR_IO_ADDR(PORTD), PORTD2
+	sbi		_SFR_IO_ADDR(PORTD), PORTD4
+	sbi		_SFR_IO_ADDR(DDRB), DDB0
+	sbi		_SFR_IO_ADDR(DDRD), DDD6
+	ldi		r16, (1<<ISC00)
+	sts		EICRA, r16
+	ldi		r16, (1<<INT0)
+	sts		EIMSK, r16
+	ldi		r16, (1<<PCIE2)
+	sts		PCICR, r16
+	ldi		r16, (1<<PCINT20)
+	sts		PCMSK2, r16
+	sei
+loop:
+	lds		r16, ch
+	cpi		r16, '0'
+	breq	offoff
+	cpi		r16, '1'
+	breq	offon
+	cpi		r16, '2'
+	breq	onoff
+	cpi		r16, '3'
+	breq	onon
+offoff:
+	cbi		_SFR_IO_ADDR(PORTB), PORTB0
+	cbi		_SFR_IO_ADDR(PORTD), PORTD6
+	rjmp	loop
+offon:
+	cbi		_SFR_IO_ADDR(PORTB), PORTB0
+	sbi		_SFR_IO_ADDR(PORTD), PORTD6
+	rjmp	loop
+onoff:
+	sbi		_SFR_IO_ADDR(PORTB), PORTB0
+	cbi		_SFR_IO_ADDR(PORTD), PORTD6
+	rjmp	loop
+onon:
+	sbi		_SFR_IO_ADDR(PORTB), PORTB0
+	sbi		_SFR_IO_ADDR(PORTD), PORTD6
+	rjmp	loop
+
+	.global	USART_RX_vect
+USART_RX_vect:
+	in		r2, _SFR_IO_ADDR(SREG)
+	push		r2
+	lds		r2, UDR0
+	sts		ch, r2
+	pop		r2
+	out		_SFR_IO_ADDR(SREG), r2
+	reti
+
+	.global INT0_vect
+INT0_vect:
+	in		r2, _SFR_IO_ADDR(SREG)
+	push		r2
+	sbic		_SFR_IO_ADDR(PIND), PIND2
+	rjmp		notPushed_1
+pushed_1:
+	ldi		r16, 'D'
+	rjmp 		done_1
+notPushed_1:
+	ldi		r16, 'U'
+done_1:
+	call	USART_send
+	pop		r2
+	out		_SFR_IO_ADDR(SREG), r2
+	reti
+
+	.global PCINT2_vect
+PCINT2_vect:
+	in		r2, _SFR_IO_ADDR(SREG)
+	push		r2
+	sbic		_SFR_IO_ADDR(PIND), PIND4
+        rjmp            notPushed_2
+pushed_2:
+        ldi             r16, 'E'
+        rjmp            done_2
+notPushed_2:
+        ldi             r16, 'V'
+done_2:
+        call    USART_send
+	pop		r2
+	out		_SFR_IO_ADDR(SREG), r2
+	reti
+
+	.end
