@@ -4,11 +4,12 @@ int numFrames = 3;
 int frame = 0;
 PImage[] frames = new PImage[numFrames];
 PImage image;
+PImage[] frames2 = new PImage[numFrames];
 int button_x = 64;
 int button_y = 64;
 
 Serial sensor;
-int buttonValue = 85;
+char buttonValue = 'A';
 int led1Fill = 128;
 int led2Fill = 128;
 int led1 = 0;
@@ -41,6 +42,21 @@ void setup() {
         image.height
       );
   }
+    image = loadImage("led.png");
+  image.loadPixels();
+  for (int i = 0; i < numFrames; i++) {
+      frames2[i] = createImage(
+        image.width / 2,
+        image.height,
+        ARGB
+      );
+     frames2[i] = image.get(
+        i * image.width / 2,
+        0,
+        image.width / 2,
+        image.height
+      );
+  }
    
 }
 
@@ -48,18 +64,14 @@ void draw() {
   background(255);
   image(frames[frame], button_x, button_y, frames[0].width, frames[0].height);
   fill(0);
-  switch(buttonValue){
-    case 85:
-      fill(0);
-;
-      break;
-    case 68:
-      fill(0,255,0);
-;
-      break;
-    default:
-      break;
-  }
+  if (buttonValue == 'A'){
+    image(frames2[0], button_x + 4, button_y+ 10, frames2[0].width, frames2[0].height);
+    image(frames2[1], button_x - 4, button_y+ 10, frames2[0].width, frames2[0].height);
+} else {
+  image(frames2[1], button_x + 4, button_y+ 10, frames2[0].width, frames2[0].height);
+  image(frames2[0], button_x - 4, button_y+ 10, frames2[0].width, frames2[0].height);
+}
+  
   stroke(0);
   fill(led1Fill,0,0);
   ellipse(x1,y,w,h);
@@ -68,7 +80,7 @@ void draw() {
 }
 
 void serialEvent(Serial s) {
- 
+  buttonValue = s.readChar();
 }
 
 
@@ -79,10 +91,10 @@ void mousePressed(){
     sensor.write(1);
    } else if (mouseInRect() && frame==1){
      frame=2;
-     sensor.write(2)
+     sensor.write(2);
    } else if (mouseInRect() && frame==2){
       frame=0; 
-      sensor.write(0)
+      sensor.write(0);
    }  
 }
 
