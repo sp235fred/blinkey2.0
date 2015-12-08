@@ -25,6 +25,11 @@ TIMER1_OVF_vect:
 	push	r2
 	sbi	_SFR_IO_ADDR(PINB), PINB0
 	sbi	_SFR_IO_ADDR(PIND), PIND6
+	sbis	_SFR_IO_ADDR(PINB), PINB0
+	ldi	r16, 'A'
+	sbis	_SFR_IO_ADDR(PIND), PIND6
+	ldi	r16, 'A'
+	call 	usart_send
 	pop	r2
 	out	_SFR_IO_ADDR(SREG), r2
 	reti
