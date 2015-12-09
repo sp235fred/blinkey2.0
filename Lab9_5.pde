@@ -27,7 +27,7 @@ void setup() {
    //printArray(PFont.list());
    sensor= new Serial(this, Serial.list()[0], 9600);
    
-  image = loadImage("newButton.png");
+  image = loadImage("Switch.png");
   image.loadPixels();
   for (int i = 0; i < numFrames; i++) {
       frames[i] = createImage(
@@ -65,18 +65,14 @@ void draw() {
   image(frames[frame], button_x, button_y, frames[0].width, frames[0].height);
   fill(0);
   if (buttonValue == 'A'){
-    image(frames2[0], button_x + 4, button_y+ 10, frames2[0].width, frames2[0].height);
-    image(frames2[1], button_x - 4, button_y+ 10, frames2[0].width, frames2[0].height);
+    image(frames2[0], button_x + 80, button_y+ 100, frames2[0].width, frames2[0].height);
+    image(frames2[0], button_x - 4, button_y+ 100, frames2[0].width, frames2[0].height);
 } else {
-  image(frames2[1], button_x + 4, button_y+ 10, frames2[0].width, frames2[0].height);
-  image(frames2[0], button_x - 4, button_y+ 10, frames2[0].width, frames2[0].height);
+  image(frames2[1], button_x + 80, button_y+ 100, frames2[0].width, frames2[0].height);
+  image(frames2[1], button_x - 4, button_y+ 100, frames2[0].width, frames2[0].height);
 }
   
-  stroke(0);
-  fill(led1Fill,0,0);
-  ellipse(x1,y,w,h);
-  fill(led2Fill,0,0);
-  ellipse(x2,y,w,h);
+  
 }
 
 void serialEvent(Serial s) {
