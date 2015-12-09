@@ -1,0 +1,99 @@
+#include <avr/io.h>
+	
+	.section	.text
+	
+ch:	.space	0, 1
+   
+	.global doit
+doit:
+	sbi	_SFR_IO_ADDR(DDRB), DDB0
+	sbi	_SFR_IO_ADDR(DDRD), DDD6
+	sbi 	_SFR_IO_ADDR(PORTB), PORTB0
+	cbi	_SFR_IO_ADDR(PORTD), PORTD6
+   
+	ldi	r16, (0<<CS12)|(1<<CS11)|(1<<CS10)
+	sts	TCCR1B, r16
+	ldi	r16, (1<<TOIE1)
+	sts	TIMSK1, r16
+	clr	r16
+	sts	TCNT1H, r16
+	sts	TCNT1L, r16
+	sei
+forever:
+   cpi		r17, 'X'
+	breq	off
+	cpi		r17,'Y'
+	breq	normalSpeed
+	cpi		r17, 'Z'
+	breq	doubleSpeed
+   rjmp forever
+off:
+	in    r16, _SFR_IO_ADDR(SREG)
+  	push  r16
+	ldi   r16, 0x00
+	sts   TCNT1H, r16
+  	sts   TCNT1L, r16
+  	pop   r16
+	out   _SFR_IO_ADDR(SREG), r16
+ 	rjmp  forever
+normalSpeed:
+   in    r16, _SFR_IO_ADDR(SREG)
+  	push  r16
+  	ldi   r16, 0x00
+  	sts   TCNT1H, r16
+	sts   TCNT1L, r16
+  	ldi   r17, 'W'
+  	pop   r16
+  	out   _SFR_IO_ADDR(SREG), r16
+  	rjmp  forever
+doubleSpeed:
+	 in    r16, _SFR_IO_ADDR(SREG)
+  	push  r16
+	;ldi   r16, 0xFF
+  ;	sts   TCNT1H, r16
+  	;ldi   r16, 0xFF
+  ;	sts   TCNT1L, r16
+   ;ldi   r17, 'W'
+  	pop   r16
+  	out   _SFR_IO_ADDR(SREG), r16
+  	rjmp  forever
+
+	.global TIMER1_OVF_vect
+TIMER1_OVF_vect:
+	in	r2, _SFR_IO_ADDR(SREG)
+	push	r2
+	cpi   r17, 'X'
+   breq  stayoff
+   sbi	_SFR_IO_ADDR(PINB), PINB0
+	sbi	_SFR_IO_ADDR(PIND), PIND6
+	sbis	_SFR_IO_ADDR(PINB), PINB0
+	ldi	r16, 'A'
+	sbis	_SFR_IO_ADDR(PIND), PIND6
+	ldi	r16, 'B'
+	call 	USART_send
+	pop	r2
+	out	_SFR_IO_ADDR(SREG), r2
+   cpi   r17, 'Z'
+   breq  staydouble
+	reti
+
+stayoff:
+   reti
+
+staydouble:
+   ldi   r16, 0x80
+  	sts   TCNT1H, r16
+  	sts   TCNT1L, r16
+   reti 
+
+.global	USART_RX_vect
+USART_RX_vect:
+	in		r2, _SFR_IO_ADDR(SREG)
+	push		r2
+	lds		r17, UDR0
+	pop		r2
+	out		_SFR_IO_ADDR(SREG), r2
+	reti
+
+  
+	.end
