@@ -2,6 +2,8 @@
 	
 	.section	.text
 	
+ch:	.space	1, 0
+   
 	.global doit
 doit:
 	sbi	_SFR_IO_ADDR(DDRB), DDB0
@@ -17,11 +19,12 @@ doit:
 	sts	TCNT1L, r16
 	sei
 forever:
-	cpi		ch, '0'
+	lds   r16, ch
+   cpi		r16, 'X'
 	breq	off
-	cpi		ch, '1'
+	cpi		r16,'Y'
 	breq	normalSpeed
-	cpi		ch, '2'
+	cpi		r16, 'Z'
 	breq	doubleSpeed
 	rjmp forever
 off:
@@ -34,12 +37,13 @@ off:
 	out   _SFR_IO_ADDR(SREG), r16
  	rjmp  forever
 normalSpeed:
-	in    r16, _SFR_IO_ADDR(SREG)
+   in    r16, _SFR_IO_ADDR(SREG)
   	push  r16
   	ldi   r16, 0x00
   	sts   TCNT1H, r16
 	sts   TCNT1L, r16
-  	sts   ch, 3
+  	ldi   r16, 'W'
+   sts   ch, r16
   	pop   r16
   	out   _SFR_IO_ADDR(SREG), r16
   	rjmp  forever
@@ -50,7 +54,8 @@ doubleSpeed:
   	sts   TCNT1H, r16
   	ldi   r16, 0x00
   	sts   TCNT1L, r16
-  	sts   ch, 3
+   ldi   r16, 'W'
+  	sts   ch, r16
   	pop   r16
   	out   _SFR_IO_ADDR(SREG), r16
   	rjmp  forever
@@ -61,13 +66,22 @@ TIMER1_OVF_vect:
 	push	r2
 	sbi	_SFR_IO_ADDR(PINB), PINB0
 	sbi	_SFR_IO_ADDR(PIND), PIND6
-	sbis	_SFR_IO_ADDR(PINB), PINB0
-	ldi	r16, 'A'
-	sbis	_SFR_IO_ADDR(PIND), PIND6
-	ldi	r16, 'B'
-	call 	usart_send
+	;sbis	_SFR_IO_ADDR(PINB), PINB0
+	;ldi	r16, 'A'
+	;sbis	_SFR_IO_ADDR(PIND), PIND6
+	;ldi	r16, 'B'
+	;call 	usart_send
 	pop	r2
 	out	_SFR_IO_ADDR(SREG), r2
 	reti
 
+.global USART_RX_vect
+USART_RX_vect:
+  in  r2, _SFR_IO_ADDR(SREG)
+  push  r2
+  lds r2, UDR0
+  sts ch, r2
+  pop r2
+  out _SFR_IO_ADDR(SREG), r2
+  reti
 	.end
