@@ -32,7 +32,7 @@ off:
   	sts   TCNT1L, r16
   	pop   r16
 	out   _SFR_IO_ADDR(SREG), r16
- 	ret
+ 	rjmp  forever
 normalSpeed:
 	in    r16, _SFR_IO_ADDR(SREG)
   	push  r16
@@ -42,7 +42,7 @@ normalSpeed:
   	sts   ch, 3
   	pop   r16
   	out   _SFR_IO_ADDR(SREG), r16
-  	ret
+  	rjmp  forever
 doubleSpeed:
 	 in    r16, _SFR_IO_ADDR(SREG)
   	push  r16
@@ -53,7 +53,7 @@ doubleSpeed:
   	sts   ch, 3
   	pop   r16
   	out   _SFR_IO_ADDR(SREG), r16
-  	ret
+  	rjmp  forever
 
 	.global TIMER1_OVF_vect
 TIMER1_OVF_vect:
